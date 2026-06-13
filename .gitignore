@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+data/cache/
+.DS_Store
+.venv/
+venv/
+*.xlsx
+.ipynb_checkpoints/
