@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/28912690/README.md)
 # AGOI™ ESG Platform — MVP
 
 **Africa Green Opportunity Index** — an interactive ESG decision-support dashboard
@@ -121,6 +120,30 @@ Full methodology, indicator registry and band readings are published on the
 **Export & methodology** page inside the app.
 
 ---
+
+## Data sources
+
+| Source | Module | Feeds | Access |
+|--------|--------|-------|--------|
+| World Bank (WDI / WGI) | `data_sources/worldbank.py` | All six pillars | Free public JSON API, keyed on ISO alpha-3 |
+| AfDB project/lending | `data_sources/afdb.py` | **Bankability pillar** | IATI Datastore (AfDB reporting-org `46002`), aggregated per country |
+| Demo (synthetic) | `data_sources/demo.py` | Gap-fill / offline | Deterministic, always flagged `default` |
+
+### ⚠️ One-time AfDB verification (do this after first deploy)
+
+The AfDB connector targets the public **IATI Datastore**, but the live response
+shape can vary and could not be reached from the build sandbox. After deploying:
+
+1. Open the app on Streamlit Cloud in **Live** or **Mixed** mode.
+2. Go to **Country profile → Nigeria → Audit trail** and look for the row
+   *"AfDB active project commitments (proxy)"*.
+   - If its **Source** reads `AfDB (IATI Datastore)` → live AfDB data is flowing. ✅
+   - If it reads `DEMO (synthetic)` → the live pull returned nothing; the platform
+     safely fell back. Paste me a sample of what the IATI endpoint returns and I'll
+     adjust the parser in `_parse_activities()` (the single place that needs it).
+
+AfDB values are flagged `confidence="proxy"` because project commitments are an
+indirect signal of bankability, not a direct market measure.
 
 ## Notes & roadmap
 
