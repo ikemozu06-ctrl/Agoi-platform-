@@ -12,7 +12,7 @@ import pandas as pd
 
 from agoi import config
 from agoi.registry import INDICATORS, AFRICAN_COUNTRIES
-from agoi.data_sources import worldbank, demo
+from agoi.data_sources import worldbank, demo, afdb
 from agoi.scoring.engine import score
 
 
@@ -21,7 +21,16 @@ def _demo_frame() -> pd.DataFrame:
 
 
 def _live_frame(progress=None) -> pd.DataFrame:
-    return pd.DataFrame(worldbank.fetch_all(progress=progress))
+    """World Bank rows + AfDB project rows (AfDB omitted silently if unreachable)."""
+    wb_rows = worldbank.fetch_all(progress=progress)
+    afdb_rows = []
+    try:
+        if progress:
+            progress(0.95, "Fetching AfDB project data…")
+        afdb_rows = afdb.fetch_all()
+    except Exception:  # noqa: BLE001 — never let AfDB break the World Bank pull
+        afdb_rows = []
+    return pd.DataFrame(wb_rows + afdb_rows)
 
 
 def _fill_missing(live: pd.DataFrame) -> pd.DataFrame:

@@ -62,6 +62,9 @@ INDICATORS = {
     # Market-Tested Bankability
     "BX.KLT.DINV.WD.GD.ZS": {"pillar": "bankability", "direction": "higher",
                              "source": "World Bank WDI", "label": "FDI net inflows (% GDP)"},
+    "AFDB.PROJ.COMMIT.PC": {"pillar": "bankability", "direction": "higher",
+                            "source": "AfDB (IATI Datastore)",
+                            "label": "AfDB active project commitments (proxy)"},
 
     # Resilience & Natural Capital
     "AG.LND.FRST.ZS": {"pillar": "resilience", "direction": "higher",

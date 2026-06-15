@@ -38,7 +38,16 @@ def _fetch_indicator(indicator: str) -> List[dict]:
 
     # mrnev=1 -> most recent non-empty value per country
     url = f"{WB_BASE}/country/all/indicator/{indicator}"
-    params = {"format": "json", "per_page": 20000, "mrnev": 1}
+    # NOTE: `mrnev` is NOT valid with country/all (causes HTTP 400). We instead
+    # pull a recent date range and select each country's latest non-null value
+    # in _fetch_indicator's caller. `mrv=1` alone can return a null latest year,
+    # so a short range is more robust.
+    current_year = dt.date.today().year
+    params = {
+        "format": "json",
+        "per_page": 20000,
+        "date": f"{current_year - 8}:{current_year}",
+    }
 
     last_err = None
     for attempt in range(config.WB_RETRIES + 1):
@@ -70,17 +79,26 @@ def fetch_all(progress=None) -> List[dict]:
         if progress:
             progress(i / len(codes), f"Fetching {code}…")
         records = _fetch_indicator(code)
+
+        # The date-range pull returns several years per country. Keep only each
+        # country's most recent non-null observation.
+        latest_per_country = {}  # iso3 -> (year, value)
         for rec in records:
             iso3 = rec.get("countryiso3code") or ""
             value = rec.get("value")
             year = rec.get("date")
-            if not iso3 or value is None:
+            if not iso3 or value is None or not year:
                 continue
+            yr = int(year)
+            if iso3 not in latest_per_country or yr > latest_per_country[iso3][0]:
+                latest_per_country[iso3] = (yr, float(value))
+
+        for iso3, (yr, value) in latest_per_country.items():
             rows.append({
                 "country_iso3": iso3,
                 "indicator": code,
-                "raw_value": float(value),
-                "year": int(year) if year else None,
+                "raw_value": value,
+                "year": yr,
                 "source": INDICATORS[code]["source"],
                 "retrieval_date": retrieval,
                 "confidence": config.CONF_MEASURED,
