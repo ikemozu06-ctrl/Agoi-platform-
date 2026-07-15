@@ -158,3 +158,36 @@ indirect signal of bankability, not a direct market measure.
   a future FastAPI backend without change.
 
 © Natural Eco Capital. Internal MVP build.
+
+---
+
+## AfCFTA Module (vertical slice)
+
+Two new pages: **AfCFTA** (readiness + country policy scenarios) and
+**Corridor Simulator** (Lagos–Abidjan, with the Lagos flood → trade-risk linkage).
+
+```
+agoi/afcfta/
+  config.py       6 indicators, 5 levers, Lagos–Abidjan corridor, Lagos trade-risk
+  elasticity.py   β matrix — EVERY coefficient carries provenance + uncertainty range
+  engine.py       protocol equations, with uncertainty propagated to every output
+  data.py         baseline values (all flagged confidence="proxy")
+```
+
+### ⚠️ Read this before showing anyone the numbers
+
+All 47 elasticity coefficients are **structural placeholders** (`provenance="assumed"`).
+They make the engine runnable end-to-end; they are **not findings**. Accordingly:
+
+- Every simulator output is a **range**, never a point estimate.
+- The UI shows a permanent "SCENARIO EXPLORER — NOT A FORECASTER" banner.
+- The **Elasticity governance** tab shows the provenance counts and the research plan.
+
+**The first substantive research task of this module is replacing those placeholders**
+via (1) econometric estimation, (2) literature-derived priors, or (3) structured expert
+elicitation — each of which sets a stronger `provenance` flag. See `ELASTICITY_ROADMAP`
+in `agoi/afcfta/elasticity.py`.
+
+The six AfCFTA indicators (GEX, DIV, GJOB, CIRC, LCMAN, GLCOR) are **not** standard World
+Bank series and have no public API. Baselines are proxy estimates pending acquisition from
+the AfCFTA Secretariat, UNCTAD, UNECA and AfDB.
