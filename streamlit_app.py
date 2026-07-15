@@ -70,6 +70,9 @@ def data_badge(meta: dict):
     else:
         st.warning(f"🟡 **DEMO DATA — not real measurements.** {meta['note'] or 'Synthetic sample for demonstration.'} "
                    f"All values flagged low-confidence. Switch to Live/Mix in the sidebar for real World Bank data.")
+    # AfDB diagnostic line — always visible so AfDB status is never a mystery.
+    afdb_status = meta.get("afdb_status", "not run")
+    st.caption(f"🏦 AfDB project data — {afdb_status}")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
